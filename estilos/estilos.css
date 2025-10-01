@@ -8,3 +8,7 @@ img{
     width: 5rem;
     height: 5rem;
 }
+#areaTexto {
+  clear: both; 
+  margin-top: 20px;
+}
