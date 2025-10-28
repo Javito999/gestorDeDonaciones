@@ -1,8 +1,15 @@
 div{
    
-    margin-left: 5rem;
-    
     float: left;
+    margin-left: 1rem;
+    
+    
+}
+#contenedor{
+  width: 75%;
+  display: flex;
+  flex-wrap: wrap;
+  
 }
 img{
     width: 5rem;
@@ -10,5 +17,18 @@ img{
 }
 #areaTexto {
   clear: both; 
+  position: absolute;
   margin-top: 20px;
+  bottom:0;
+  left: 0;
+}
+aside{
+  width: 25%;
+  background-color: antiquewhite;
+  box-sizing: border-box;
+  position: fixed;
+  overflow: hidden;
+  right: 0;
+  top: 0;
+  bottom: 0;
 }
