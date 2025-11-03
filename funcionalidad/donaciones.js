@@ -1,17 +1,14 @@
 let donaciones = [];
 
-let asociaciones = [
-    'Love Project',
-    'Soleil',
-    'Acair',
-    'Acción contra el hambre',
-    'Acción para el desarr',
-    'ACCU',
-    'Achalay',
-    'A compartir',
-    'Adama',
-    'Luchemos por la vida'
-];
+fetch("http://localhost:3000/organizaciones")
+  .then(res => res.json())
+  .then(data => {
+    asociaciones = data;
+    contadorAsociaciones = new Array(asociaciones.length);
+    donacionesPorAsociacion = asociaciones.map(() => []);
+    console.log("Asociaciones cargadas:", asociaciones);
+  })
+  .catch(err => console.error(err));
 
 let contarDonaciones = 0;
 let contadorAsociaciones = new Array(asociaciones.length).fill(0);
@@ -81,5 +78,3 @@ function limpiarProceso() {
     contarDonaciones = 0;
     contadorAsociaciones = new Array(asociaciones.length).fill(0);
 }
-
-
