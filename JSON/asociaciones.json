@@ -1,0 +1,77 @@
+{
+    "organizaciones": [
+        {
+            "id": 1,
+            "nombre": "Love Project",
+            "acogida": false,
+            "rangoEdad": "infancia"
+        },
+        {
+            "id": 2,
+            "nombre": "Soleil",
+            "multiraza": true,
+            "ambito": "internacional"
+        },
+        {
+            "id": 3,
+            "nombre": "Acair",
+            "acogida": true,
+            "rangoEdad": "adolescencia"
+        },
+        {
+            "id": 4,
+            "nombre": "Acción contra el hambre",
+            "acogida": false,
+            "rangoEdad": "tercera edad"
+        },
+        {
+            "id": 5,
+            "nombre": "Acción para el desarr",
+            "multiraza": false,
+            "ambito": "local"
+        },
+        {
+            "id": 6,
+            "nombre": "ACCU",
+            "acogida": false,
+            "rangoEdad": "infancia"
+        },
+        {
+            "id": 7,
+            "nombre": "Achalay",
+            "acogida": true,
+            "rangoEdad": "adolescencia"
+        },
+        {
+            "id": 8,
+            "nombre": "A compartir",
+            "multiraza": true,
+            "ambito": "nacional"
+        },
+        {
+            "id": 9,
+            "nombre": "Adama",
+            "multiraza": false,
+            "ambito": "internacional"
+        },
+        {
+            "id": 10,
+            "nombre": "Luchemos por la vida",
+            "acogida": false,
+            "rangoEdad": "tercera edad"
+        }
+    ],
+    "tramiteDonacion": [
+        {
+            "id": 1,
+            "fecha": "11/2025",
+            "donaciones": [
+                {
+                    "idOrganizacion": 1,
+                    "importeTotal": 52.30,
+                    "numDonaciones": 3
+                }
+            ]
+        }
+    ]
+}
