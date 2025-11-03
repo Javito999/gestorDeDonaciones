@@ -1,6 +1,12 @@
+let asociaciones = [];
 let donaciones = [];
+let contadorAsociaciones = [];
+let donacionesPorAsociacion = [];
+let finalizado = false;
+let ultimaActiva = null;
+let contarDonaciones = 0;
 
-fetch("http://localhost:3000/asociaciones")
+fetch("http://localhost:3000/organizaciones")
   .then(res => res.json())
   .then(data => {
     asociaciones = data;
@@ -10,10 +16,7 @@ fetch("http://localhost:3000/asociaciones")
   })
   .catch(err => console.error(err));
 
-let contarDonaciones = 0;
-let contadorAsociaciones = new Array(asociaciones.length).fill(0);
 
-let finalizado = false; 
 
 function anadirDonaciones(id, indice) {
   
@@ -37,6 +40,31 @@ function anadirDonaciones(id, indice) {
   mostrarDonacionLateral(donacion, indice);
   pulsacion.value = "";
 }
+
+function mostrarDonacionLateral(donacion, indice) {
+  let zona = document.getElementById("resumen");
+  let linea = document.createElement("div");
+  linea.textContent = donacion.nombre + " — " + donacion.cantidad.toFixed(2) + "€";
+  linea.classList.add("linea-donacion");
+  zona.appendChild(linea);
+
+  
+  if (ultimaActiva) {
+    ultimaActiva.classList.remove("activo");
+  }
+  let lineas = zona.querySelectorAll(".linea-donacion");
+  lineas.forEach(l => {
+    if (l.textContent.startsWith(donacion.nombre)) {
+      l.classList.add("activo");
+    } else {
+      l.classList.remove("activo");
+    }
+  });
+
+  ultimaActiva = linea;
+}
+
+
 
 
 function finalizarTramite() {
