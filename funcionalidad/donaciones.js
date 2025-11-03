@@ -1,6 +1,6 @@
 let donaciones = [];
 
-fetch("http://localhost:3000/organizaciones")
+fetch("http://localhost:3000/asociaciones")
   .then(res => res.json())
   .then(data => {
     asociaciones = data;
@@ -15,17 +15,27 @@ let contadorAsociaciones = new Array(asociaciones.length).fill(0);
 
 let finalizado = false; 
 
-function anadirDonaciones(aportacion, indice) {
-   
-    if (finalizado) {
-        limpiarProceso();
-        document.getElementById("area").value = ""; 
-        finalizado = false;
-    }
+function anadirDonaciones(id, indice) {
+  
+    let pulsacion = document.getElementById("donacion" + indice);
+  let valor = parseFloat(pulsacion.value);
 
-    donaciones.push(aportacion);
-    contarDonaciones++;
-    contadorAsociaciones[indice]++;
+  if (isNaN(valor) || valor <= 0) return;
+
+  let fecha = new Date();
+  let donacion = {
+    idOrg: id,
+    nombre: asociaciones[indice].nombre,
+    cantidad: valor,
+    fecha: fecha.toLocaleString()
+  };
+
+  donaciones.push(donacion);
+  donacionesPorAsociacion[indice].push(valor);
+  contadorAsociaciones[indice]++;
+
+  mostrarDonacionLateral(donacion, indice);
+  pulsacion.value = "";
 }
 
 
