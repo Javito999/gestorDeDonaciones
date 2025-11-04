@@ -2,26 +2,25 @@ let asociaciones = [];
 let donaciones = [];
 let contadorAsociaciones = [];
 let donacionesPorAsociacion = [];
-let finalizado = false;
 let ultimaActiva = null;
-let contarDonaciones = 0;
+
 
 fetch("http://localhost:3000/organizaciones")
-  .then(res => res.json())
-  .then(data => {
-    asociaciones = data;
-    contadorAsociaciones = new Array(asociaciones.length);
+  .then(response => response.json())
+  .then(datos => {
+    asociaciones = datos;
+    contadorAsociaciones = new Array(asociaciones.length).fill(0);
     donacionesPorAsociacion = asociaciones.map(() => []);
     console.log("Asociaciones cargadas:", asociaciones);
   })
-  .catch(err => console.error(err));
-
+  .catch(error => console.error(error));
 
 
 function anadirDonaciones(id, indice) {
   
-    let pulsacion = document.getElementById("donacion" + indice);
-  let valor = parseFloat(pulsacion.value);
+
+  let input = document.getElementById("donacion" + indice);
+  let valor = parseFloat(input.value);
 
   if (isNaN(valor) || valor <= 0) return;
 
@@ -38,26 +37,29 @@ function anadirDonaciones(id, indice) {
   contadorAsociaciones[indice]++;
 
   mostrarDonacionLateral(donacion, indice);
-  pulsacion.value = "";
+  input.value = "";
 }
 
-function mostrarDonacionLateral(donacion, indice) {
+
+function mostrarDonacionLateral(donacion) {
   let zona = document.getElementById("resumen");
   let linea = document.createElement("div");
-  linea.textContent = donacion.nombre + " — " + donacion.cantidad.toFixed(2) + "€";
+  linea.textContent = donacion.nombre + " — " + donacion.cantidad + "€";
   linea.classList.add("linea-donacion");
   zona.appendChild(linea);
 
-  
+ 
   if (ultimaActiva) {
     ultimaActiva.classList.remove("activo");
   }
+
+  
   let lineas = zona.querySelectorAll(".linea-donacion");
-  lineas.forEach(l => {
-    if (l.textContent.startsWith(donacion.nombre)) {
-      l.classList.add("activo");
+  lineas.forEach(elem => {
+    if (elem.textContent.startsWith(donacion.nombre)) {
+      elem.classList.add("activo");
     } else {
-      l.classList.remove("activo");
+      elem.classList.remove("activo");
     }
   });
 
@@ -65,54 +67,116 @@ function mostrarDonacionLateral(donacion, indice) {
 }
 
 
-
-
 function finalizarTramite() {
-    let area = document.getElementById("area");
+  let area = document.getElementById("area");
+  let ahora = new Date();
 
-    if (donaciones.length === 0) {
-        area.value = "No se han realizado aportaciones.";
-        return;
-    }
+  
+  let salida = "Fecha de compra: " + ahora + "\n";
 
-    let salida = "";
 
+  // Calcular media
+  const asociacionesConDonaciones = asociaciones.map((asociacion, i) => {
+      let lista = donacionesPorAsociacion[i];
+      if (lista.length === 0) return null;
+
+      let total = lista.reduce((acc, valor) => acc + valor, 0);
+      let media = total / lista.length;
+
+      return {
+        id: asociacion.id,
+        nombre: asociacion.nombre,
+        numDonaciones: lista.length,
+        total,
+        media
+      };
+    })
     
-    let asociacionesOrdenadas = [...asociaciones].map((nombre, i) => ({ 
-        nombre, 
-        cantidad: contadorAsociaciones[i] 
+    asociacionesConDonaciones.sort((a, b) => b.nombre.localeCompare(a.nombre));
+
+  // Calcular totales  y escribir el texto
+  let totalGlobal = 0;
+  let numGlobal = 0;
+
+  asociacionesConDonaciones.forEach(a => {
+    totalGlobal += a.total;
+    numGlobal += a.numDonaciones;
+    salida += a.nombre + ": " + a.numDonaciones + " don., " + a.total + "€\n";
+
+  });
+
+  let aporteTotal = totalGlobal;
+  let aporteMedio = (totalGlobal / numGlobal);
+
+  salida += "\nAporte total: " + aporteTotal + " €\n";
+salida += "Aporte medio: " + aporteMedio + " €/donación";
+
+
+  // Mostrar resumen en el área de texto
+  area.value = salida;
+
+  // Mostrar ventana emergente con resumen de asociaciones
+  const nombresAsociaciones = asociacionesConDonaciones.map(a => a.nombre);
+  mostrarVentanaEmergente(nombresAsociaciones);
+
+  // objeto de trámite a guardar
+  const tramite = {
+    fecha: ahora.toLocaleDateString("es-ES", { month: "2-digit", year: "numeric" }),
+    donaciones: asociacionesConDonaciones.map(a => ({
+      idOrganizacion: a.id,
+      importeTotal: parseFloat(a.total),
+      numDonaciones: a.numDonaciones
     }))
-    .filter(a => a.cantidad > 0) 
-    .sort((a, b) => b.nombre.localeCompare(a.nombre)); 
+  };
 
-    
-    asociacionesOrdenadas.forEach(a => {
-       let texto = a.nombre + "----" + a.cantidad + " ";
-       if(a.cantidad === 1){
-            texto+= "aportación\n";
-       }else {
-            texto += "aportaciones\n";
-       }
-       salida += texto;
-    });
+  // Guardar en el servidor
+  guardarTramite(tramite);
 
-   
-    let suma = donaciones.reduce((total, valor) => total + valor, 0);
-    salida += "Donación final: " + suma + " €\n";
-
-   
-    let media = (suma / contarDonaciones).toFixed(2);
-    salida += "Donación media: " + media + " €/aportación";
-
-    area.value = salida;
-
-    
-    finalizado = true;
+  // Limpia
+  setTimeout(limpiarProceso, 10000);
 }
 
 
+
+function guardarTramite(tramite) {
+  fetch("http://localhost:3000/tramiteDonacion", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(tramite)
+  })
+    .then(response => response.json())
+    .then(datos => {
+      console.log("Trámite guardado correctamente:", datos);
+    })
+    .catch(err => console.error("Error al guardar trámite:", err));
+}
+
+
+function mostrarVentanaEmergente(lista) {
+  let mensaje = "";
+
+  lista.forEach(nombre => {
+    let a = asociaciones.find(elem => elem.nombre === nombre);
+    if (!a) return;
+
+    if (a.acogida !== undefined) {
+      mensaje += a.nombre + ": trabaja con personas, enfocada en la " + a.rangoEdad + " y " +(a.acogida ? "tramita" : "no tramita") +" acogidas.\n";
+    } else {
+      mensaje += a.nombre + ": trabaja con animales a nivel " + a.ambito + ".\n";
+    }
+  });
+
+  alert(mensaje);
+}
+
+
+
 function limpiarProceso() {
-    donaciones = [];
-    contarDonaciones = 0;
-    contadorAsociaciones = new Array(asociaciones.length).fill(0);
+  donaciones = [];
+  contadorAsociaciones = new Array(asociaciones.length).fill(0);
+  donacionesPorAsociacion = asociaciones.map(() => []);
+  document.getElementById("resumen").innerHTML = "";
+  document.getElementById("area").value = "";
+  finalizado = false;
+  ultimaActiva = null;
 }
